@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.schram.jwebassembly</groupId>
+    <artifactId>test</artifactId>
+    <version>0.0.0</version>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>de.inetsoftware</groupId>
+            <artifactId>jwebassembly-api</artifactId>
+            <version>0.4</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.schram</groupId>
+                <artifactId>jwebassembly-maven</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <configuration>
+                    <format>text</format>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>java-to-wasm</id>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
