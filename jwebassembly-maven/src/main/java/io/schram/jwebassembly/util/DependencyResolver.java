@@ -4,6 +4,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 
@@ -12,24 +13,30 @@ import java.util.Objects;
 import static java.util.Objects.nonNull;
 
 public final class DependencyResolver {
-    private final ArtifactRepository localRepository;
-    private final MavenProject project;
+
+    private final ArtifactRepository artifactRepository;
+    private final ArtifactRetriever artifactRetriever;
+    private final MavenProject mavenProject;
     private final RepositorySystem repositorySystem;
 
-    public DependencyResolver(final MavenProject project,
-                              final ArtifactRepository localRepository,
+    public DependencyResolver(final ArtifactRepository artifactRepository,
+                              final ArtifactRetriever artifactRetriever,
+                              final MavenProject mavenProject,
                               final RepositorySystem repositorySystem) {
 
-        this.localRepository = localRepository;
-        this.project = project;
+        this.artifactRepository = artifactRepository;
+        this.artifactRetriever = artifactRetriever;
+        this.mavenProject = mavenProject;
         this.repositorySystem = repositorySystem;
     }
 
-    public Artifact getCompilerArtifact() {
-        Dependency dependency = getCompilerDependencyFrom(project);
+    public Artifact getCompilerArtifact() throws MojoExecutionException {
+        Dependency dependency = getCompilerDependencyFrom(mavenProject);
         Artifact artifact = nonNull(dependency) ? toArtifact(dependency) : getDefaultCompilerArtifact();
 
-        return localRepository.find(artifact);
+        retrieve(artifact);
+
+        return artifactRepository.find(artifact);
     }
 
     private static Dependency getCompilerDependencyFrom(final MavenProject project) {
@@ -66,7 +73,7 @@ public final class DependencyResolver {
 
     public Artifact resolve(final Dependency dependency) {
         Artifact artifact = toArtifact(dependency);
-        return localRepository.find(artifact);
+        return artifactRepository.find(artifact);
     }
 
     private Artifact toArtifact(final Dependency dependency) {
@@ -75,5 +82,13 @@ public final class DependencyResolver {
                 dependency.getArtifactId(),
                 dependency.getVersion(),
                 dependency.getType());
+    }
+
+    private void retrieve(final Artifact artifact) throws MojoExecutionException {
+        if (nonNull(artifact.getFile()) && artifact.getFile().exists()) {
+            return;
+        }
+
+        artifactRetriever.retrieve(artifact);
     }
 }

@@ -4,6 +4,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Plugin;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.RepositorySystem;
 import org.junit.Test;
@@ -16,12 +17,14 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DependencyResolverTest {
 
-    @Mock ArtifactRepository localRepository;
+    @Mock ArtifactRetriever artifactRetriever;
+    @Mock ArtifactRepository artifactRepository;
     @Mock MavenProject mavenProject;
     @Mock RepositorySystem repositorySystem;
 
@@ -29,7 +32,7 @@ public class DependencyResolverTest {
     DependencyResolver dependencyResolver;
 
     @Test
-    public void testIfAbleToGetCompilerArtifactFromPOM() {
+    public void testIfAbleToGetCompilerArtifactFromPOM() throws MojoExecutionException {
         Plugin otherPlugin = mock(Plugin.class);
         when(otherPlugin.getGroupId()).thenReturn("io.schram");
         when(otherPlugin.getArtifactId()).thenReturn("other-maven-plugin");
@@ -53,26 +56,28 @@ public class DependencyResolverTest {
 
         Artifact expectedCompilerArtifact = mock(Artifact.class);
         when(repositorySystem.createArtifact("de.inetsoftware", "jwebassembly-compiler", "0.42", "jar")).thenReturn(expectedCompilerArtifact);
-        when(localRepository.find(expectedCompilerArtifact)).thenReturn(expectedCompilerArtifact);
+        when(artifactRepository.find(expectedCompilerArtifact)).thenReturn(expectedCompilerArtifact);
 
         Artifact result = dependencyResolver.getCompilerArtifact();
 
         assertThat(result).isEqualTo(expectedCompilerArtifact);
         verify(repositorySystem).createArtifact("de.inetsoftware", "jwebassembly-compiler", "0.42", "jar");
-        verify(localRepository).find(expectedCompilerArtifact);
+        verify(artifactRepository).find(expectedCompilerArtifact);
+        verify(artifactRetriever).retrieve(expectedCompilerArtifact);
     }
 
     @Test
-    public void testIfGettingDefaultWhenCompilerArtifactIsNotDeclaredInPOM() {
+    public void testIfGettingDefaultWhenCompilerArtifactIsNotDeclaredInPOM() throws MojoExecutionException {
         Artifact expectedCompilerArtifact = mock(Artifact.class);
         when(repositorySystem.createArtifact("de.inetsoftware", "jwebassembly-compiler", "0.4", "jar")).thenReturn(expectedCompilerArtifact);
-        when(localRepository.find(expectedCompilerArtifact)).thenReturn(expectedCompilerArtifact);
+        when(artifactRepository.find(expectedCompilerArtifact)).thenReturn(expectedCompilerArtifact);
 
         Artifact result = dependencyResolver.getCompilerArtifact();
 
         assertThat(result).isEqualTo(expectedCompilerArtifact);
         verify(repositorySystem).createArtifact("de.inetsoftware", "jwebassembly-compiler", "0.4", "jar");
-        verify(localRepository).find(expectedCompilerArtifact);
+        verify(artifactRepository).find(expectedCompilerArtifact);
+        verify(artifactRetriever).retrieve(expectedCompilerArtifact);
     }
 
     @Test
@@ -90,12 +95,14 @@ public class DependencyResolverTest {
 
         Artifact expectedCompilerArtifact = mock(Artifact.class);
         when(repositorySystem.createArtifact(groupId, artifactId, version, type)).thenReturn(expectedCompilerArtifact);
-        when(localRepository.find(expectedCompilerArtifact)).thenReturn(expectedCompilerArtifact);
+        when(artifactRepository.find(expectedCompilerArtifact)).thenReturn(expectedCompilerArtifact);
 
         Artifact result = dependencyResolver.resolve(dependency);
 
         assertThat(result).isEqualTo(expectedCompilerArtifact);
         verify(repositorySystem).createArtifact(groupId, artifactId, version, type);
-        verify(localRepository).find(expectedCompilerArtifact);
+        verify(artifactRepository).find(expectedCompilerArtifact);
+
+        verifyNoInteractions(artifactRetriever);
     }
 }

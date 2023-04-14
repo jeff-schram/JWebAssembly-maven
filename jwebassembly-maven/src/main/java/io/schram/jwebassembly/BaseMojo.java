@@ -1,8 +1,11 @@
 package io.schram.jwebassembly;
 
+import io.schram.jwebassembly.util.ArtifactRetriever;
 import io.schram.jwebassembly.util.DependencyResolver;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -25,13 +28,19 @@ abstract class BaseMojo extends AbstractMojo {
     String format;
 
     @Parameter( defaultValue = "${localRepository}", required = true, readonly = true )
-    ArtifactRepository localRepository;
-
-    @Parameter(defaultValue = "${project}", required = true, readonly = true)
-    MavenProject project;
+    ArtifactRepository artifactRepository;
 
     @Component
     RepositorySystem repositorySystem;
+
+    @Component
+    MavenProject mavenProject;
+
+    @Component
+    MavenSession mavenSession;
+
+    @Component
+    BuildPluginManager pluginManager;
 
     @Component
     Logger logger;
@@ -56,7 +65,8 @@ abstract class BaseMojo extends AbstractMojo {
 
     DependencyResolver dependencyResolver() {
         if (dependencyResolver == null) {
-            dependencyResolver = new DependencyResolver(project, localRepository, repositorySystem);
+            ArtifactRetriever artifactRetriever = new ArtifactRetriever(mavenProject, mavenSession, pluginManager);
+            dependencyResolver = new DependencyResolver(artifactRepository, artifactRetriever, mavenProject, repositorySystem);
         }
 
         return dependencyResolver;
@@ -68,8 +78,8 @@ abstract class BaseMojo extends AbstractMojo {
 
     File getOutputFile() {
         String targetPath = String.format("%s/%s.%s",
-                project.getBuild().getDirectory(),
-                project.getBuild().getFinalName(),
+                mavenProject.getBuild().getDirectory(),
+                mavenProject.getBuild().getFinalName(),
                 getOutputFormat().equals(Binary) ? "wasm" : "wat");
 
         return new File(targetPath);

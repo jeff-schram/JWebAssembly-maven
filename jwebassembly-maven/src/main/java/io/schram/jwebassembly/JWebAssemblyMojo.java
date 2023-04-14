@@ -1,6 +1,5 @@
 package io.schram.jwebassembly;
 
-import io.schram.jwebassembly.util.JavaVersion;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -26,7 +25,6 @@ public class JWebAssemblyMojo extends BaseMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         compilerDependency = dependencyResolver().getCompilerArtifact();
 
-        checkIfJavaVersionIsSupported();
         checkIfCompilerVersionIsSupported();
         findCodeToCompile();
 
@@ -41,12 +39,6 @@ public class JWebAssemblyMojo extends BaseMojo {
         return new JWebAssemblyCompiler(compilerDependency, getLogger());
     }
 
-    private void checkIfJavaVersionIsSupported() throws MojoFailureException {
-        if (JavaVersion.getVersion() != 8) {
-            throw new MojoFailureException("JWebAssembly (currently) only works with JDK 8");
-        }
-    }
-
     private void checkIfCompilerVersionIsSupported() throws MojoFailureException {
         if ("0.1".equals(compilerDependency.getVersion())) {
             throw new MojoFailureException("Unsupported version of jwebassembly-compiler, use 0.2 or higher");
@@ -54,8 +46,8 @@ public class JWebAssemblyMojo extends BaseMojo {
     }
 
     private void findCodeToCompile() {
-        dependencies.addAll(project.getDependencies());
-        findClassesToCompileIn(new File(project.getBuild().getOutputDirectory()));
+        dependencies.addAll(mavenProject.getDependencies());
+        findClassesToCompileIn(new File(mavenProject.getBuild().getOutputDirectory()));
     }
 
     private void findClassesToCompileIn(final File file) {

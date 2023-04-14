@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.schram</groupId>
+        <artifactId>integration-tests</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>integration-tests-use-plugin-without-explicit-compiler-dependency</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>de.inetsoftware</groupId>
+            <artifactId>jwebassembly-api</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <manualInclude>de.inetsoftware:jwebassembly-compiler</manualInclude>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>purge</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>purge-local-repository</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>io.schram</groupId>
+                <artifactId>jwebassembly-maven</artifactId>
+                <executions>
+                    <execution>
+                        <id>java-to-wasm</id>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

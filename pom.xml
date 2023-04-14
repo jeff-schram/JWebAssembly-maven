@@ -11,6 +11,7 @@
 
     <modules>
         <module>jwebassembly-maven</module>
+        <module>integration-tests</module>
     </modules>
 
     <properties>
@@ -26,6 +27,7 @@
         <maven-plugin-testing-harness.version>3.3.0</maven-plugin-testing-harness.version>
         <maven-project.version>2.2.1</maven-project.version>
         <mockito.version>4.11.0</mockito.version>
+        <mojo-executor.version>2.4.0</mojo-executor.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.36</slf4j.version>
     </properties>
@@ -36,11 +38,6 @@
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
                 <version>${assertj.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>de.inetsoftware</groupId>
-                <artifactId>jwebassembly-api</artifactId>
-                <version>${jwebassembly.version}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -88,23 +85,16 @@
                 <version>${slf4j.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.twdata.maven</groupId>
+                <artifactId>mojo-executor</artifactId>
+                <version>${mojo-executor.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>pl.pragmatists</groupId>
                 <artifactId>JUnitParams</artifactId>
                 <version>${junitparams.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>io.schram</groupId>
-                    <artifactId>jwebassembly-maven</artifactId>
-                    <version>${project.version}</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 
 </project>
