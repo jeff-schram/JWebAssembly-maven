@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.schram</groupId>
+        <groupId>io.schram.webassembly.maven</groupId>
         <artifactId>integration-tests</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>integration-tests-compile-to-binary-format</artifactId>
@@ -17,12 +17,17 @@
             <groupId>de.inetsoftware</groupId>
             <artifactId>jwebassembly-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.schram.webassembly.maven</groupId>
+            <artifactId>integration-tests-common</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>io.schram</groupId>
+                <groupId>io.schram.webassembly.maven</groupId>
                 <artifactId>jwebassembly-maven</artifactId>
                 <configuration>
                     <format>binary</format>
@@ -31,14 +36,15 @@
                     <execution>
                         <id>java-to-wasm</id>
                         <goals>
-                            <goal>build</goal>
+                            <goal>compile</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

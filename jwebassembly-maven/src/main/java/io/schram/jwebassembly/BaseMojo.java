@@ -1,11 +1,7 @@
 package io.schram.jwebassembly;
 
-import io.schram.jwebassembly.util.ArtifactRetriever;
-import io.schram.jwebassembly.util.DependencyResolver;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.execution.MavenSession;
+import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -14,6 +10,7 @@ import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.logging.Logger;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 import static io.schram.jwebassembly.OutputFormat.Binary;
@@ -27,20 +24,11 @@ abstract class BaseMojo extends AbstractMojo {
     @Parameter(property = "format")
     String format;
 
-    @Parameter( defaultValue = "${localRepository}", required = true, readonly = true )
-    ArtifactRepository artifactRepository;
+    @Parameter(property = "compiler", required = true)
+    Compiler compiler;
 
-    @Component
-    RepositorySystem repositorySystem;
-
-    @Component
+    @Parameter( defaultValue = "${project}", readonly = true )
     MavenProject mavenProject;
-
-    @Component
-    MavenSession mavenSession;
-
-    @Component
-    BuildPluginManager pluginManager;
 
     @Component
     Logger logger;
@@ -48,7 +36,13 @@ abstract class BaseMojo extends AbstractMojo {
     @Parameter
     Properties properties;
 
-    public Logger getLogger() {
+    @Component
+    RepositorySystem repositorySystem;
+
+    @Parameter(defaultValue = "${project.remoteArtifactRepositories}", readonly = true, required = true)
+    private List<MavenArtifactRepository> remoteRepositories;
+
+    Logger getLogger() {
         return logger;
     }
 
@@ -57,7 +51,7 @@ abstract class BaseMojo extends AbstractMojo {
         throw new UnsupportedOperationException();
     }
 
-    public Properties getProperties() {
+    Properties getProperties() {
         return properties;
     }
 
@@ -65,8 +59,7 @@ abstract class BaseMojo extends AbstractMojo {
 
     DependencyResolver dependencyResolver() {
         if (dependencyResolver == null) {
-            ArtifactRetriever artifactRetriever = new ArtifactRetriever(mavenProject, mavenSession, pluginManager);
-            dependencyResolver = new DependencyResolver(artifactRepository, artifactRetriever, mavenProject, repositorySystem);
+            dependencyResolver = new DependencyResolver(remoteRepositories, repositorySystem);
         }
 
         return dependencyResolver;

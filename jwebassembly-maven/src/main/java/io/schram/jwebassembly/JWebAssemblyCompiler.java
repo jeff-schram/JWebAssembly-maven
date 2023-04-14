@@ -4,7 +4,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.logging.Logger;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -17,7 +16,12 @@ import java.net.URLClassLoader;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.newOutputStream;
 
+/**
+ * Facade for the {@value COMPILER_CLASS_NAME} class. Retrieves and accesses the class via reflection.
+ */
 public class JWebAssemblyCompiler {
+
+    static final String COMPILER_CLASS_NAME = "de.inetsoftware.jwebassembly.JWebAssembly";
 
     private final Object compiler;
     private final Method addFile;
@@ -51,8 +55,9 @@ public class JWebAssemblyCompiler {
 
     private static Class<?> getReferenceToCompilerFor(final Artifact compilerDependency) throws MojoExecutionException {
         try {
+            @SuppressWarnings("resource")
             URLClassLoader classLoader = new URLClassLoader( new URL[]{ compilerDependency.getFile().toURI().toURL()});
-            return classLoader.loadClass("de.inetsoftware.jwebassembly.JWebAssembly");
+            return classLoader.loadClass(COMPILER_CLASS_NAME);
         } catch (final ClassNotFoundException | IOException exception) {
             throw new MojoExecutionException(exception);
         }
@@ -64,7 +69,7 @@ public class JWebAssemblyCompiler {
         return method;
     }
 
-    void addFile(@Nonnull final File file) throws MojoExecutionException {
+    void addFile(final File file) throws MojoExecutionException {
         try {
             log.debug("Adding " + file.getAbsolutePath());
             addFile.invoke(compiler, file);
@@ -73,7 +78,7 @@ public class JWebAssemblyCompiler {
         }
     }
 
-    void addLibrary(@Nonnull final File file) throws MojoExecutionException {
+    void addLibrary(final File file) throws MojoExecutionException {
         try {
             log.debug("Adding " + file.getAbsolutePath());
             addLibrary.invoke(compiler, file);

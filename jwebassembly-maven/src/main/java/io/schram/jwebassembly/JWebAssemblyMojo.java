@@ -12,9 +12,14 @@ import java.util.List;
 
 import static io.schram.jwebassembly.OutputFormat.Binary;
 import static java.util.Objects.nonNull;
-import static org.apache.maven.plugins.annotations.LifecyclePhase.PREPARE_PACKAGE;
+import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 
-@Mojo(name="build", defaultPhase = PREPARE_PACKAGE)
+/**
+ * Simple Maven plugin (i.e., {@link Mojo} for
+ * 1. retrieving the JWebAssembly compiler from Maven, and
+ * 2. executing the JWebAssembly compiler (through Reflection)
+ */
+@Mojo(name="compile", defaultPhase = PROCESS_CLASSES)
 public class JWebAssemblyMojo extends BaseMojo {
 
     Artifact compilerDependency;
@@ -23,7 +28,7 @@ public class JWebAssemblyMojo extends BaseMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        compilerDependency = dependencyResolver().getCompilerArtifact();
+        compilerDependency = dependencyResolver().resolve(compiler);
 
         checkIfCompilerVersionIsSupported();
         findCodeToCompile();
@@ -46,7 +51,14 @@ public class JWebAssemblyMojo extends BaseMojo {
     }
 
     private void findCodeToCompile() {
-        dependencies.addAll(mavenProject.getDependencies());
+        List<Dependency> dependencies = new ArrayList<>();
+        for (final Dependency dependency : mavenProject.getDependencies()) {
+            if (! dependency.getScope().equalsIgnoreCase("test")) {
+                dependencies.add(dependency);
+            }
+        }
+
+        this.dependencies.addAll(dependencies);
         findClassesToCompileIn(new File(mavenProject.getBuild().getOutputDirectory()));
     }
 

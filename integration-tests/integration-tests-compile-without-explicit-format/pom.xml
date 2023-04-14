@@ -10,7 +10,7 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>integration-tests-use-plugin-with-explicit-compiler-dependency</artifactId>
+    <artifactId>integration-tests-compile-without-explicit-format</artifactId>
 
     <dependencies>
         <dependency>
@@ -29,14 +29,6 @@
             <plugin>
                 <groupId>io.schram.webassembly.maven</groupId>
                 <artifactId>jwebassembly-maven</artifactId>
-                <configuration>
-                    <format>binary</format>
-                    <compiler>
-                        <groupId>de.inetsoftware</groupId>
-                        <artifactId>jwebassembly-compiler</artifactId>
-                        <version>0.3</version>
-                    </compiler>
-                </configuration>
                 <executions>
                     <execution>
                         <id>java-to-wasm</id>
