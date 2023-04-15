@@ -71,3 +71,17 @@ jobs:
           maven-version: 3.9.1
       - name: Build with Maven
         run: mvn --batch-mode --no-transfer-progress verify
+
+  wip:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        maven_version: [ "3.9.0", "3.9.1"]
+
+    steps:
+      - name: Set up Maven 3.9.0
+        uses: stCarolas/setup-maven@v4.5
+        with:
+          maven-version: ${{ matrix.maven_version }}
+      - run: mvn --version
+
