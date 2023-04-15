@@ -32,6 +32,7 @@ to configure is _compile_.
         <plugin>
             <groupId>io.schram.webassembly.maven</groupId>
             <artifactId>jwebassembly-maven</artifactId>
+            <version>0.1.0</version>
             <executions>
                 <execution>
                     <id>java-to-wasm</id>
