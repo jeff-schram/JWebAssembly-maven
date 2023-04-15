@@ -3,7 +3,8 @@ name: Maven 3.9.x
 on: [push]
 
 jobs:
-  JDK_8:
+  jdk8:
+    name: JDK 8
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -26,6 +27,7 @@ jobs:
         run: mvn --batch-mode --no-transfer-progress verify
 
   jdk11:
+    name: JDK 11
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -48,6 +50,7 @@ jobs:
         run: mvn --batch-mode --no-transfer-progress verify
 
   jdk17:
+    name: JDK 17
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
